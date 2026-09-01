@@ -44,6 +44,16 @@
   h1{ font-size:clamp(30px,4.6vw,44px); font-weight:800; letter-spacing:-1.2px; line-height:1.08; margin:0 0 14px; max-width:16ch; }
   .hero p{ font-size:clamp(15px,1.7vw,18px); line-height:1.6; color:var(--text-dim); max-width:60ch; margin:0; }
 
+  .search{ position:relative; max-width:440px; margin-top:28px; }
+  .search svg{ position:absolute; left:16px; top:50%; transform:translateY(-50%); width:17px; height:17px; color:var(--text-faint); pointer-events:none; }
+  .search input{ width:100%; background:var(--surface); border:1px solid var(--border); border-radius:11px; padding:13px 16px 13px 44px;
+    font-family:var(--font-body); font-size:14.5px; color:var(--text); outline:none; transition:border-color .15s ease, background .15s ease; }
+  .search input::placeholder{ color:var(--text-faint); }
+  .search input:focus{ border-color:var(--accent-bright); background:var(--surface2); }
+  .no-results{ display:none; padding:32px 0; text-align:center; color:var(--text-faint); font-size:13.5px; }
+  .no-results.show{ display:block; }
+  .card.is-hidden{ display:none; }
+
   .section{ padding:clamp(28px,4vh,40px) 0; }
   .section__head{ display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap; }
   .section__head h2{ font-size:clamp(18px,2.2vw,22px); font-weight:700; letter-spacing:-.3px; margin:0; }
@@ -101,6 +111,10 @@
     <p class="eyebrow">Centro de documentación</p>
     <h1>Manuales, guías y material de Cosmiq</h1>
     <p>Todo lo que necesitas para conocer la plataforma o preparar una reunión — en un solo lugar, siempre a la mano.</p>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="Buscar por palabra clave — manual, CRM, agentes..." autocomplete="off">
+    </div>
   </div>
 </section>
 
@@ -176,12 +190,13 @@
         </div>
       </div>
 
-      <div class="card empty-card">
+      <div class="card empty-card" id="emptyCard">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>
         <span>Próximos documentos<br>aparecerán aquí</span>
       </div>
 
     </div>
+    <p class="no-results" id="noResults">Sin resultados para tu búsqueda.</p>
   </div>
 </section>
 
@@ -191,6 +206,28 @@
     <p>Cosmiq &middot; actualizado en cada nueva versión</p>
   </div>
 </footer>
+
+<script>
+  (function(){
+    var input = document.getElementById('searchInput');
+    var cards = Array.prototype.slice.call(document.querySelectorAll('.grid .card:not(.empty-card)'));
+    var emptyCard = document.getElementById('emptyCard');
+    var noResults = document.getElementById('noResults');
+
+    input.addEventListener('input', function(){
+      var q = input.value.trim().toLowerCase();
+      var visible = 0;
+      cards.forEach(function(card){
+        var text = card.textContent.toLowerCase();
+        var match = q === '' || text.indexOf(q) !== -1;
+        card.classList.toggle('is-hidden', !match);
+        if(match) visible++;
+      });
+      emptyCard.classList.toggle('is-hidden', q !== '');
+      noResults.classList.toggle('show', q !== '' && visible === 0);
+    });
+  })();
+</script>
 
 </body>
 </html>
